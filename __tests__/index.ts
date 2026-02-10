@@ -2,6 +2,8 @@ import { describe, expect, test } from '@jest/globals';
 import {
   otherPlayer,
   playerToString,
+  pointToString,
+  scoreToString,
   scoreWhenDeuce,
   scoreWhenAdvantage,
   scoreWhenForty,
@@ -26,6 +28,23 @@ describe('Tests for tooling functions', () => {
 
   test('Given playerOne when otherPlayer', () => {
     expect(otherPlayer('PLAYER_ONE')).toStrictEqual('PLAYER_TWO');
+  });
+
+  test('pointToString maps points to expected strings', () => {
+    expect(pointToString(love())).toStrictEqual('Love');
+    expect(pointToString(fifteen())).toStrictEqual('15');
+    expect(pointToString(thirty())).toStrictEqual('30');
+  });
+
+  test('scoreToString formats scores correctly', () => {
+    expect(scoreToString(points(fifteen(), love()))).toStrictEqual('15 - Love');
+    expect(scoreToString(deuce())).toStrictEqual('Deuce');
+    expect(scoreToString(advantage(stringToPlayer('PLAYER_ONE')))).toStrictEqual(
+      'Advantage Player 1'
+    );
+    expect(scoreToString(game(stringToPlayer('PLAYER_TWO')))).toStrictEqual(
+      'Game Player 2'
+    );
   });
 });
 
