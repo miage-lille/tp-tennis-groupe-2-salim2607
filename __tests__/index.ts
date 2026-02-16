@@ -8,6 +8,7 @@ import {
   scoreWhenAdvantage,
   scoreWhenForty,
   scoreWhenPoint,
+  score,
 } from '..';
 import { stringToPlayer } from '../types/player';
 import {
@@ -45,6 +46,17 @@ describe('Tests for tooling functions', () => {
     expect(scoreToString(game(stringToPlayer('PLAYER_TWO')))).toStrictEqual(
       'Game Player 2'
     );
+  });
+
+  // FORTY formatting for both players
+  test('scoreToString formats FORTY when PLAYER_ONE has 40', () => {
+    const s = forty(stringToPlayer('PLAYER_ONE'), fifteen());
+    expect(scoreToString(s)).toStrictEqual('40 - 15');
+  });
+
+  test('scoreToString formats FORTY when PLAYER_TWO has 40', () => {
+    const s = forty(stringToPlayer('PLAYER_TWO'), fifteen());
+    expect(scoreToString(s)).toStrictEqual('15 - 40');
   });
 });
 
@@ -127,5 +139,43 @@ describe('Tests for transition functions', () => {
       const newScore = scoreWhenPoint(current.pointsData, stringToPlayer(winner));
       expect(newScore).toStrictEqual(expected);
     });
+  });
+});
+
+describe('Integration paths around deuce/advantage', () => {
+  test('deuce → advantage (P1) → deuce (P2) → advantage (P2) → game (P2)', () => {
+    const p1 = stringToPlayer('PLAYER_ONE');
+    const p2 = stringToPlayer('PLAYER_TWO');
+
+    // Start at deuce
+    let current: import('../types/score').Score = deuce();
+    // P1 wins → Advantage P1
+    current = score(current, p1);
+    expect(current).toStrictEqual(advantage(p1));
+    // P2 wins → back to Deuce
+    current = score(current, p2);
+    expect(current).toStrictEqual(deuce());
+    // P2 wins → Advantage P2
+    current = score(current, p2);
+    expect(current).toStrictEqual(advantage(p2));
+    // P2 wins again → Game P2
+    current = score(current, p2);
+    expect(current).toStrictEqual(game(p2));
+  });
+});
+
+describe('Mixed cases around FORTY', () => {
+  test('40 - 15: the player at 15 wins twice → 40 - 30 then Deuce', () => {
+    const p1 = stringToPlayer('PLAYER_ONE');
+    const p2 = stringToPlayer('PLAYER_TWO');
+
+    // PLAYER_ONE has 40, PLAYER_TWO has 15
+    let current: import('../types/score').Score = forty(p1, fifteen());
+    // PLAYER_TWO wins → 40 - 30
+    current = score(current, p2);
+    expect(current).toStrictEqual(forty(p1, thirty()));
+    // PLAYER_TWO wins again → Deuce
+    current = score(current, p2);
+    expect(current).toStrictEqual(deuce());
   });
 });
