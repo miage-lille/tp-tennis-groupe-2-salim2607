@@ -179,3 +179,14 @@ describe('Mixed cases around FORTY', () => {
     expect(current).toStrictEqual(deuce());
   });
 });
+
+describe('Exercise 3 — Game state does not transition', () => {
+  test('Given Game, score stays Game', () => {
+    const winner = stringToPlayer('PLAYER_ONE');
+    const current = game(winner);
+    // Even if another player "wins" a point, game must stay unchanged
+    expect(score(current, stringToPlayer('PLAYER_TWO'))).toStrictEqual(current);
+    // If the same winner "wins" again, it also stays unchanged
+    expect(score(current, winner)).toStrictEqual(current);
+  });
+});
